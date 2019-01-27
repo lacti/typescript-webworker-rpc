@@ -1,0 +1,43 @@
+{
+  "name": "typescript-webworker-rpc",
+  "description": "Simple promise based RPC between window and worker with TypeScript",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/lacti/typescript-webworker-rpc.git"
+  },
+  "keywords": [
+    "typescript",
+    "webworker",
+    "rpc"
+  ],
+  "bugs": {
+    "url": "https://github.com/v6x/typescript-webworker-rpc/issues"
+  },
+  "homepage": "https://github.com/v6x/typescript-webworker-rpc#readme",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "tsc --project tsconfig.json",
+    "build:watch": "tsc --project tsconfig.json --watch",
+    "test": "jest --config jest.config.js",
+    "test:watch": "jest --config jest.config.js --watch",
+    "prepublishOnly": "yarn test && yarn build"
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.13",
+    "jest": "23.x.x",
+    "prettier": "^1.16.1",
+    "ts-jest": "^23.10.5",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.17.0",
+    "typescript": "^3.2.4"
+  },
+  "prettier": {
+    "printWidth": 80,
+    "singleQuote": true,
+    "trailingComma": "all"
+  }
+}
