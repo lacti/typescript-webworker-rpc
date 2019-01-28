@@ -1,4 +1,4 @@
-# TypeScript WebWorker RPC
+# TypeScript WebWorker RPC [![Build Status](https://travis-ci.org/lacti/typescript-webworker-rpc.svg?branch=master)](https://travis-ci.org/lacti/typescript-webworker-rpc)
 
 This is a simple RPC utils to build a bridge between `window` and `worker` as simple way using TypeScript.
 
@@ -131,3 +131,7 @@ I'm a newbie in TypeScript world, so I want to enhance some of functionalities b
 2. I don't know how to support multi-parameters naturally while calling a function.
 3. I don't know how to omit a parameter if a method doesn't have any parameters.
 4. I don't know how to build type-safety between `on (for call)` and `on (for post)` in worker-side.
+
+## License
+
+MIT
