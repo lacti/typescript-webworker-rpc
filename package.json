@@ -15,9 +15,9 @@
     "rpc"
   ],
   "bugs": {
-    "url": "https://github.com/v6x/typescript-webworker-rpc/issues"
+    "url": "https://github.com/lacti/typescript-webworker-rpc/issues"
   },
-  "homepage": "https://github.com/v6x/typescript-webworker-rpc#readme",
+  "homepage": "https://github.com/lacti/typescript-webworker-rpc#readme",
   "scripts": {
     "lint": "tslint --project tsconfig.json",
     "build": "tsc --project tsconfig.json",
