@@ -1,28 +1,28 @@
 import * as rpc from '../src';
-import { createWorkers } from './utils/workers';
+import { createChannels } from './utils/channel';
 
-interface AccumulatorRpc {
+interface AccumulatorRPC {
   addPost: (value: number) => void;
   addSync: (value: number) => void;
   addAndGet: (value: number) => number;
   get: () => number;
 }
 
-class AccumulatorWindowSide extends rpc.WindowSide<
-  keyof AccumulatorRpc,
-  AccumulatorRpc
+class AccumulatorClient extends rpc.RPCClient<
+  keyof AccumulatorRPC,
+  AccumulatorRPC
 > {}
-class AccumulatorWorkerSide extends rpc.WorkerSide<
-  keyof AccumulatorRpc,
-  AccumulatorRpc
+class AccumulatorServer extends rpc.RPCServer<
+  keyof AccumulatorRPC,
+  AccumulatorRPC
 > {}
 
 test('basic', async () => {
-  const { windowWorker, workerWorker } = createWorkers();
-  const windowRpc = new AccumulatorWindowSide(windowWorker);
+  const { windowChannel, workerChannel } = createChannels();
+  const windowRPC = new AccumulatorClient(windowChannel);
 
   let workerValue = 0;
-  new AccumulatorWorkerSide(workerWorker)
+  new AccumulatorServer(workerChannel)
     .on(
       'addPost',
       value => {
@@ -37,14 +37,14 @@ test('basic', async () => {
     .on('get', () => ({ result: workerValue }))
     .onError(console.error);
 
-  expect(await windowRpc.call('get', {})).toEqual(0);
+  expect(await windowRPC.call('get', {})).toEqual(0);
 
-  windowRpc.post('addPost', 10);
-  expect(await windowRpc.call('get', {})).toEqual(10);
+  windowRPC.post('addPost', 10);
+  expect(await windowRPC.call('get', {})).toEqual(10);
 
-  await windowRpc.call('addSync', 20);
-  expect(await windowRpc.call('get', {})).toEqual(30);
+  await windowRPC.call('addSync', 20);
+  expect(await windowRPC.call('get', {})).toEqual(30);
 
-  expect(await windowRpc.call('addAndGet', 30)).toEqual(60);
-  expect(await windowRpc.call('get', {})).toEqual(60);
+  expect(await windowRPC.call('addAndGet', 30)).toEqual(60);
+  expect(await windowRPC.call('get', {})).toEqual(60);
 });

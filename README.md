@@ -8,40 +8,79 @@ This is a simple RPC utils to build a bridge between `window` and `worker` as si
 yarn add typescript-webworker-rpc
 ```
 
-## Quick start
+## Usage
+
+### Quick start
 
 1. Define your RPC interface.
 
 ```typescript
-interface AccumulatorRpc {
+interface AccumulatorRPC {
   add: (value: number) => void;
   get: () => number;
 }
 ```
 
-2. Create an object for worker-side and register handlers.
+2. Create an object for server-calling and register handlers.
 
 ```typescript
+// Maybe in web-worker context.
 let totalValue = 0;
-new WorkerSide<keyof AccumulatorRpc, AccumulatorRpc>(self as any)
+new RPCServer<keyof AccumulatorRPC, AccumulatorRPC>(self as any)
   .on('add', value => {
     totalValue += value;
   })
   .on('get', () => ({ result: totalValue }));
 ```
 
-3. Create an object for window-side.
+3. Create an object for client-calling.
 
 ```typescript
-const rpc = new WindowSide<keyof AccumulatorRpc, AccumulatorRpc>(worker);
+// Maybe in window context.
+const rpc = new RPCClient<keyof AccumulatorRPC, AccumulatorRPC>(worker);
 
 await rpc.call('add', 20);
 const newValue = await rpc.call('get', {});
 ```
 
+### Advanced
+
+Let's write an example that communicates each endpoints with ping and pong messages.
+
+1. Write two interfaces for that.
+
+```typescript
+// window -> worker
+interface Ping {
+  ping: () => void;
+}
+// worker -> window
+interface Pong {
+  pong: () => void;
+}
+```
+
+2. Write both of client and server using both channels.
+
+```typescript
+// window.ts
+const pingRPC = new rpc.RPCClient<keyof Ping, Ping>(worker);
+new rpc.RPCServer<keyof Pong, Pong>(worker).on('pong', async () => {
+  await pingRPC.call('ping', {});
+});
+
+// worker.ts
+const pongRPC = new rpc.RPCClient<keyof Pong, Pong>(self as any);
+new rpc.RPCServer<keyof Ping, Ping>(self as any).on('ping', async () => {
+  await pongRPC.call('pong', {});
+});
+```
+
+Of course, above example doesn't be terminated because it is the infinity recursive call.
+
 ## API
 
-### `WindowSide`
+### `RPCClient`
 
 A object to call a method to send a request to web-worker side and wait a result using `Promise`.
 
@@ -51,7 +90,7 @@ A object to call a method to send a request to web-worker side and wait a result
 await rpc.call(`method-name`, parameter, transfer?);
 ```
 
-If you send an `ArrayBuffer` to web-worker, you can use like this. If you can transfer an ownership of that object, please use `transfer` parameter like `postMessage`.
+If you send an `ArrayBuffer` to web-worker, you can use like this. If you can transfer the ownership of that object, please use `transfer` parameter like `postMessage`.
 
 ```typescript
 await rpc.call(`addBuffer`, buffer, [buffer]);
@@ -84,7 +123,7 @@ If you want to handle an error from `worker`, please chain `error` handler using
 rpc.onError(error => console.error);
 ```
 
-### `WorkerSide`
+### `RPCServer`
 
 A object to receive a request from window and response a result.
 
@@ -127,7 +166,7 @@ rpc.onError(error => console.error);
 
 I'm a newbie in TypeScript world, so I want to enhance some of functionalities but I have to study more.
 
-1. Type parameters in `WindowSide` and `WorkerSide` should be merged as one parameter. Now, it should be written as `WindowSide<keyof RPC, RPC>` to specify a list of methods with type-safety but I don't know how to use like `WindowSide<RPC>` with same constraints.
+1. Type parameters in `RPCClient` and `RPCServer` should be merged as one parameter. Now, it should be written as `WindowSide<keyof RPC, RPC>` to specify a list of methods with type-safety but I don't know how to use like `WindowSide<RPC>` with same constraints.
 2. I don't know how to support multi-parameters naturally while calling a function.
 3. I don't know how to omit a parameter if a method doesn't have any parameters.
 4. I don't know how to build type-safety between `on (for call)` and `on (for post)` in worker-side.

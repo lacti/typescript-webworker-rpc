@@ -1,3 +1,2 @@
-export { WindowSide } from './window';
-export { WorkerSide } from './worker';
-export { RpcInterface } from './types';
+export { RPCClient } from './client';
+export { RPCServer } from './server';

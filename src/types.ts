@@ -1,34 +1,41 @@
 import { AnyFunction, AType } from './utils/type';
 
-export interface RpcInterface {
+interface RPCInterface {
   [name: string]: AnyFunction;
 }
 
-export interface RpcRequest<R extends RpcInterface, F extends keyof R> {
+export interface RPCRequest<R extends RPCInterface, F extends keyof R> {
   id: number;
   type: F;
   args: AType<R[F]>;
 }
 
-export interface RpcRawRequest {
+export interface RPCRawRequest {
   id: number;
   type: string;
   args: any;
 }
 
-export interface RpcRawResponse {
+export interface RPCRawResponse {
   id: number;
   result?: any;
   error?: Error;
 }
 
-export interface CustomMessageEvent {
+export interface RPCMessageEvent {
   data: any;
 }
 
-export interface CustomWorker {
-  onmessage: ((message: CustomMessageEvent) => void) | null;
-  onerror: ((error: ErrorEvent) => void) | null;
+interface ChannelEventMap {
+  message: RPCMessageEvent;
+  error: ErrorEvent;
+}
+
+export interface RPCChannel {
+  addEventListener<K extends keyof ChannelEventMap>(
+    name: K,
+    listener: ((event: ChannelEventMap[K]) => void) | null,
+  ): void;
 
   postMessage(message: any, transfer?: Transferable[]): void;
 }
