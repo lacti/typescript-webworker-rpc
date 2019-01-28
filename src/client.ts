@@ -59,7 +59,7 @@ export class RPCClient<
     const resolver = this.resolvers[response.id];
     delete this.resolvers[response.id];
     if (!resolver) {
-      return this.fireError(new ErrorEvent(`No resolver for ${response.id}`));
+      return this.fireError(new Error(`No resolver for ${response.id}`));
     }
     try {
       if (response.error) {
@@ -68,7 +68,7 @@ export class RPCClient<
         return resolver.resolve(response.result);
       }
     } catch (error) {
-      return this.fireError(new ErrorEvent(error.message));
+      return this.fireError(new Error(error.message));
     }
   };
 }

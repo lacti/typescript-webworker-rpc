@@ -58,7 +58,7 @@ export class RPCServer<
     }
     const tuple = this.handlers[request.type];
     if (!tuple) {
-      return this.fireError(new ErrorEvent(`No handler for ${request.type}`));
+      return this.fireError(new Error(`No handler for ${request.type}`));
     }
     // Can be async.
     this.executeHandler(tuple, request);
@@ -88,7 +88,7 @@ export class RPCServer<
     try {
       this.channel.postMessage(response, transfer);
     } catch (error) {
-      this.fireError(new ErrorEvent(error.message));
+      this.fireError(new Error(error.message));
     }
   };
 }
