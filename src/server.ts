@@ -5,16 +5,16 @@ import {
   RPCRawRequest,
   RPCRawResponse,
 } from './types';
-import { AnyFunction, AType, RPCDeclaration, RType } from './utils/type';
+import { AnyFunction, PromiseOrValue, RPCDeclaration } from './utils/type';
 
-interface RPCHandlerRType<F extends AnyFunction> {
-  result: RType<F>;
+type RPCHandlerRType<F extends AnyFunction> = ReturnType<F> extends void ? void : {
+  result: ReturnType<F>;
   transfer?: Transferable[];
-}
+};
 
 type RPCHandler<F extends AnyFunction> = (
-  args: AType<F>,
-) => RPCHandlerRType<F> | Promise<RPCHandlerRType<F>> | void;
+  ...args: Parameters<F>
+) => PromiseOrValue<RPCHandlerRType<F>>;
 
 interface RPCHandlerOptions {
   noReturn?: boolean;
@@ -29,15 +29,15 @@ export class RPCServer<
   RPC extends RPCDeclaration<RPC>
 > extends AbstractRPC {
   private readonly handlers: {
-    [method: string]: RPCHandlerTuple<any>;
-  } = {};
+    [method in keyof RPC]: RPCHandlerTuple<any>;
+  } = {} as any;
 
   constructor(channel: RPCChannel) {
     super(channel);
     this.channel.addEventListener('message', this.onMessage);
   }
 
-  public on = <M extends RPCMethod>(
+  public on = <M extends keyof RPC>(
     method: M,
     handler: RPCHandler<RPC[M]>,
     options?: RPCHandlerOptions,
@@ -55,7 +55,7 @@ export class RPCServer<
     if (!request.type) {
       return;
     }
-    const tuple = this.handlers[request.type];
+    const tuple = this.handlers[request.type as keyof RPC];
     if (!tuple) {
       return this.fireError(new Error(`No handler for ${request.type}`));
     }
@@ -72,7 +72,7 @@ export class RPCServer<
 
     let transfer: Transferable[] | undefined;
     try {
-      let result = handler(request.args);
+      let result = handler(...request.args);
       if (options && options.noReturn) {
         return;
       }

@@ -166,9 +166,7 @@ rpc.onError(error => console.error);
 
 I'm a newbie in TypeScript world, so I want to enhance some of functionalities but I have to study more.
 
-1. I don't know how to support multi-parameters naturally while calling a function.
-2. I don't know how to omit a parameter if a method doesn't have any parameters.
-3. I don't know how to build type-safety between `on (for call)` and `on (for post)` in worker-side.
+1. I don't know how to build type-safety between `on (for call)` and `on (for post)` in worker-side.
 
 ## License
 

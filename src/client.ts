@@ -6,7 +6,29 @@ import {
   RPCRequest,
 } from './types';
 import { ValueResolver } from './utils/promise';
-import { AnyFunction, AType, RPCDeclaration, RType } from './utils/type';
+import { RPCDeclaration } from './utils/type';
+
+const InternalCall = Symbol('RPCClient internal call');
+const InternalPost = Symbol('RPCClient internal post');
+
+export class RPCWithTransfer<RPC extends RPCDeclaration<RPC>> {
+  public constructor(private client: RPCClient<RPC>, private transfers?: Transferable[]) {
+  }
+
+  public call: RPCClient<RPC>['call'] = (
+    method,
+    ...args
+  ) => {
+    return this.client[InternalCall](method, this.transfers, ...args);
+  }
+
+  public post: RPCClient<RPC>['post'] = (
+    method,
+    ...args
+  ) => {
+    this.client[InternalPost](method, this.transfers, ...args);
+  }
+}
 
 export class RPCClient<
   RPC extends RPCDeclaration<RPC>
@@ -19,27 +41,45 @@ export class RPCClient<
     this.channel.addEventListener('message', this.onMessage);
   }
 
-  public call = <M extends RPCMethod>(
+  public withTransfer(...transfers: Transferable[]) {
+    return new RPCWithTransfer<RPC>(this, transfers);
+  }
+
+  public call = <M extends keyof RPC>(
     method: M,
-    args: AType<RPC[M]>,
-    transfer?: Transferable[],
-  ): Promise<RType<RPC[M]>> => {
+    ...args: Parameters<RPC[M]>
+  ) => {
+    return this[InternalCall](method, undefined, ...args);
+  };
+
+  public [InternalCall] = <M extends keyof RPC>(
+    method: M,
+    transfer: Transferable[] | undefined,
+    ...args: Parameters<RPC[M]>
+  ) => {
     const request: RPCRequest<RPC, M> = {
       id: this.idSerial++,
       type: method,
-      args,
+      args
     };
-    const holder = new ValueResolver<RType<RPC[M]>>();
+    const holder = new ValueResolver<ReturnType<RPC[M]>>();
     this.resolvers[request.id] = holder;
     return holder.promise(() => {
       this.channel.postMessage(request, transfer);
     });
   };
 
-  public post = <M extends RPCMethod>(
+  public post = <M extends keyof RPC>(
     method: M,
-    args: AType<RPC[M]>,
-    transfer?: Transferable[],
+    ...args: Parameters<RPC[M]>
+  ) => {
+    this[InternalPost](method, undefined, ...args);
+  };
+
+  public [InternalPost] = <M extends keyof RPC>(
+    method: M,
+    transfer: Transferable[] | undefined,
+    ...args: Parameters<RPC[M]>
   ) => {
     const request: RPCRequest<RPC, M> = {
       id: this.idSerial++,

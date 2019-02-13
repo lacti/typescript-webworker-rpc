@@ -1,4 +1,4 @@
-import { AnyFunction, AType } from './utils/type';
+import { AnyFunction } from "./utils/type";
 
 interface RPCInterface {
   [name: string]: AnyFunction;
@@ -7,13 +7,13 @@ interface RPCInterface {
 export interface RPCRequest<R extends RPCInterface, F extends keyof R> {
   id: number;
   type: F;
-  args: AType<R[F]>;
+  args: Parameters<R[F]>;
 }
 
 export interface RPCRawRequest {
   id: number;
   type: string;
-  args: any;
+  args: any[];
 }
 
 export interface RPCRawResponse {
