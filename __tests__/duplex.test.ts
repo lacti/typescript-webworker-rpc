@@ -11,8 +11,8 @@ interface Pong {
 
 test('duplex', async () => {
   const { windowChannel, workerChannel } = createChannels();
-  const pingRPC = new rpc.RPCClient<keyof Ping, Ping>(windowChannel);
-  new rpc.RPCServer<keyof Ping, Ping>(workerChannel).on(
+  const pingRPC = new rpc.RPCClient<Ping>(windowChannel);
+  new rpc.RPCServer<Ping>(workerChannel).on(
     'ping',
     async remainCount => {
       console.log('ping', remainCount);
@@ -27,8 +27,8 @@ test('duplex', async () => {
     },
   );
 
-  const pongRPC = new rpc.RPCClient<keyof Pong, Pong>(workerChannel);
-  new rpc.RPCServer<keyof Pong, Pong>(windowChannel).on(
+  const pongRPC = new rpc.RPCClient<Pong>(workerChannel);
+  new rpc.RPCServer<Pong>(windowChannel).on(
     'pong',
     async remainCount => {
       console.log('pong', remainCount);

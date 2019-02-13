@@ -5,7 +5,7 @@ import {
   RPCRawRequest,
   RPCRawResponse,
 } from './types';
-import { AnyFunction, AType, RType } from './utils/type';
+import { AnyFunction, AType, RPCDeclaration, RType } from './utils/type';
 
 interface RPCHandlerRType<F extends AnyFunction> {
   result: RType<F>;
@@ -26,8 +26,7 @@ interface RPCHandlerTuple<F extends AnyFunction> {
 }
 
 export class RPCServer<
-  RPCMethod extends string,
-  RPC extends { [K in RPCMethod]: AnyFunction }
+  RPC extends RPCDeclaration<RPC>
 > extends AbstractRPC {
   private readonly handlers: {
     [method: string]: RPCHandlerTuple<any>;

@@ -6,11 +6,10 @@ import {
   RPCRequest,
 } from './types';
 import { ValueResolver } from './utils/promise';
-import { AnyFunction, AType, RType } from './utils/type';
+import { AnyFunction, AType, RPCDeclaration, RType } from './utils/type';
 
 export class RPCClient<
-  RPCMethod extends string,
-  RPC extends { [K in RPCMethod]: AnyFunction }
+  RPC extends RPCDeclaration<RPC>
 > extends AbstractRPC {
   private idSerial = 0;
   private resolvers: { [id: number]: ValueResolver<any> } = {};

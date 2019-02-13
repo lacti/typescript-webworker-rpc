@@ -9,13 +9,11 @@ interface AccumulatorRPC {
 }
 
 class AccumulatorClient extends rpc.RPCClient<
-  keyof AccumulatorRPC,
   AccumulatorRPC
-> {}
+  > { }
 class AccumulatorServer extends rpc.RPCServer<
-  keyof AccumulatorRPC,
   AccumulatorRPC
-> {}
+  > { }
 
 test('basic', async () => {
   const { windowChannel, workerChannel } = createChannels();

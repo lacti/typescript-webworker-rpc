@@ -7,3 +7,5 @@ export type AType<F extends AnyFunction> = F extends (args: infer A) => any
 export type RType<F extends AnyFunction> = F extends (args: any) => infer R
   ? (R extends void ? undefined : R)
   : never;
+
+export type RPCDeclaration<RPC> = { [K in keyof RPC]: AnyFunction };
