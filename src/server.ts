@@ -5,29 +5,33 @@ import {
   RPCRawRequest,
   RPCRawResponse,
 } from './types';
-import { AnyFunction, PromiseOrValue, RPCDeclaration } from './utils/type';
+import { AnyFunction, PostMethodCondition, PromiseOrValue, RPCDeclaration } from './utils/type';
 
-type RPCHandlerRType<F extends AnyFunction> = ReturnType<F> extends void ? void : {
+type RPCHandlerRType<F extends AnyFunction> = ReturnType<F> extends void ? (void | { result?: never, transfer: Transferable[] }) : {
   result: ReturnType<F>;
   transfer?: Transferable[];
 };
 
 type RPCHandler<F extends AnyFunction> = (
   ...args: Parameters<F>
-) => PromiseOrValue<RPCHandlerRType<F>>;
+) => PromiseOrValue<PostMethodCondition<F, void, RPCHandlerRType<F>>>;
 
-interface RPCHandlerOptions {
-  noReturn?: boolean;
+interface PostRPCHandlerOptions {
+  noReturn: true;
 }
+
+type CallRPCHandlerOptions = null;
+
+type RPCHandlerOptions<F extends AnyFunction> = PostMethodCondition<F, PostRPCHandlerOptions, CallRPCHandlerOptions>;
 
 interface RPCHandlerTuple<F extends AnyFunction> {
   handler: RPCHandler<F>;
-  options?: RPCHandlerOptions;
+  options: RPCHandlerOptions<F>;
 }
 
 export class RPCServer<
   RPC extends RPCDeclaration<RPC>
-> extends AbstractRPC {
+  > extends AbstractRPC {
   private readonly handlers: {
     [method in keyof RPC]: RPCHandlerTuple<any>;
   } = {} as any;
@@ -40,7 +44,7 @@ export class RPCServer<
   public on = <M extends keyof RPC>(
     method: M,
     handler: RPCHandler<RPC[M]>,
-    options?: RPCHandlerOptions,
+    options: RPCHandlerOptions<RPC[M]>,
   ) => {
     this.handlers[method] = {
       handler,
@@ -79,8 +83,10 @@ export class RPCServer<
       if (result && result instanceof Promise) {
         result = await result;
       }
-      response.result = result ? result.result : undefined;
-      transfer = result ? result.transfer : undefined;
+      if (result) {
+        response.result = result.result;
+        transfer = result.transfer;
+      }
     } catch (error) {
       response.error = error;
     }

@@ -166,7 +166,7 @@ rpc.onError(error => console.error);
 
 I'm a newbie in TypeScript world, so I want to enhance some of functionalities but I have to study more.
 
-1. I don't know how to build type-safety between `on (for call)` and `on (for post)` in worker-side.
+1. I don't know how to omit `options` parameter of `on` method of RPCServer when `option` parameter is redundant.
 
 ## License
 

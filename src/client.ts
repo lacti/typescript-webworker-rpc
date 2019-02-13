@@ -6,7 +6,7 @@ import {
   RPCRequest,
 } from './types';
 import { ValueResolver } from './utils/promise';
-import { RPCDeclaration } from './utils/type';
+import { CallMethodNames, PostMethodNames, RPCDeclaration } from './utils/type';
 
 const InternalCall = Symbol('RPCClient internal call');
 const InternalPost = Symbol('RPCClient internal post');
@@ -32,7 +32,7 @@ export class RPCWithTransfer<RPC extends RPCDeclaration<RPC>> {
 
 export class RPCClient<
   RPC extends RPCDeclaration<RPC>
-> extends AbstractRPC {
+  > extends AbstractRPC {
   private idSerial = 0;
   private resolvers: { [id: number]: ValueResolver<any> } = {};
 
@@ -45,14 +45,14 @@ export class RPCClient<
     return new RPCWithTransfer<RPC>(this, transfers);
   }
 
-  public call = <M extends keyof RPC>(
+  public call = <M extends CallMethodNames<RPC>>(
     method: M,
     ...args: Parameters<RPC[M]>
   ) => {
     return this[InternalCall](method, undefined, ...args);
   };
 
-  public [InternalCall] = <M extends keyof RPC>(
+  public [InternalCall] = <M extends CallMethodNames<RPC>>(
     method: M,
     transfer: Transferable[] | undefined,
     ...args: Parameters<RPC[M]>
@@ -69,14 +69,14 @@ export class RPCClient<
     });
   };
 
-  public post = <M extends keyof RPC>(
+  public post = <M extends PostMethodNames<RPC>>(
     method: M,
     ...args: Parameters<RPC[M]>
   ) => {
     this[InternalPost](method, undefined, ...args);
   };
 
-  public [InternalPost] = <M extends keyof RPC>(
+  public [InternalPost] = <M extends PostMethodNames<RPC>>(
     method: M,
     transfer: Transferable[] | undefined,
     ...args: Parameters<RPC[M]>
