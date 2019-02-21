@@ -1,7 +1,7 @@
 {
   "name": "typescript-webworker-rpc",
   "description": "Simple promise based RPC between window and worker with TypeScript",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
