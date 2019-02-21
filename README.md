@@ -162,12 +162,6 @@ If you want to handle an error from `worker`, please chain `error` handler using
 rpc.onError(error => console.error);
 ```
 
-## Limitation
-
-I'm a newbie in TypeScript world, so I want to enhance some of functionalities but I have to study more.
-
-1. I don't know how to omit `options` parameter of `on` method of RPCServer when `option` parameter is redundant.
-
 ## License
 
 MIT
