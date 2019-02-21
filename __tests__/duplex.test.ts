@@ -24,7 +24,7 @@ test('duplex', async () => {
       }
       expect(result).toEqual(0);
       return { result };
-    }, null,
+    },
   );
 
   const pongRPC = new rpc.RPCClient<Pong>(workerChannel);
@@ -40,7 +40,7 @@ test('duplex', async () => {
       }
       expect(result).toEqual(0);
       return { result };
-    }, null,
+    },
   );
 
   await pingRPC.call('ping', 10);

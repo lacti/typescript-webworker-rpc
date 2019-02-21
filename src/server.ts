@@ -5,7 +5,7 @@ import {
   RPCRawRequest,
   RPCRawResponse,
 } from './types';
-import { AnyFunction, PostMethodCondition, PromiseOrValue, RPCDeclaration } from './utils/type';
+import { AnyFunction, CallMethodNames, PostMethodCondition, PostMethodNames, PromiseOrValue, RPCDeclaration } from './utils/type';
 
 type RPCHandlerRType<F extends AnyFunction> = ReturnType<F> extends void ? (void | { result?: never, transfer: Transferable[] }) : {
   result: ReturnType<F>;
@@ -20,13 +20,26 @@ interface PostRPCHandlerOptions {
   noReturn: true;
 }
 
-type CallRPCHandlerOptions = null;
+type CallRPCHandlerOptions = never;
 
 type RPCHandlerOptions<F extends AnyFunction> = PostMethodCondition<F, PostRPCHandlerOptions, CallRPCHandlerOptions>;
 
 interface RPCHandlerTuple<F extends AnyFunction> {
   handler: RPCHandler<F>;
   options: RPCHandlerOptions<F>;
+}
+
+interface RPCServerOnMethod<RPC extends RPCDeclaration<RPC>> {
+  <M extends CallMethodNames<RPC>>(
+    method: M,
+    handler: RPCHandler<RPC[M]>,
+    options?: RPCHandlerOptions<RPC[M]>, // ???: Can't use CallRPCHandlerOptions. It breaks types.
+  ): RPCServer<RPC>,
+  <M extends PostMethodNames<RPC>>(
+    method: M,
+    handler: RPCHandler<RPC[M]>,
+    options: RPCHandlerOptions<RPC[M]>, // ???: Can't use PostRPCHandlerOptions. It breaks types.
+  ): RPCServer<RPC>,
 }
 
 export class RPCServer<
@@ -41,7 +54,7 @@ export class RPCServer<
     this.channel.addEventListener('message', this.onMessage);
   }
 
-  public on = <M extends keyof RPC>(
+  public on: RPCServerOnMethod<RPC> = <M extends keyof RPC>(
     method: M,
     handler: RPCHandler<RPC[M]>,
     options: RPCHandlerOptions<RPC[M]>,

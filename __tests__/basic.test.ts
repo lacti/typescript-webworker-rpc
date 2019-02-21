@@ -30,9 +30,9 @@ test('basic', async () => {
     )
     .on('addSync', value => {
       workerValue += value;
-    }, null)
-    .on('addAndGet', value => ({ result: workerValue += value }), null)
-    .on('get', () => ({ result: workerValue }), null)
+    })
+    .on('addAndGet', value => ({ result: workerValue += value }))
+    .on('get', () => ({ result: workerValue }))
     .onError(console.error);
 
   expect(await windowRPC.call('get')).toEqual(0);
