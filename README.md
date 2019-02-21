@@ -166,10 +166,7 @@ rpc.onError(error => console.error);
 
 I'm a newbie in TypeScript world, so I want to enhance some of functionalities but I have to study more.
 
-1. Type parameters in `RPCClient` and `RPCServer` should be merged as one parameter. Now, it should be written as `WindowSide<keyof RPC, RPC>` to specify a list of methods with type-safety but I don't know how to use like `WindowSide<RPC>` with same constraints.
-2. I don't know how to support multi-parameters naturally while calling a function.
-3. I don't know how to omit a parameter if a method doesn't have any parameters.
-4. I don't know how to build type-safety between `on (for call)` and `on (for post)` in worker-side.
+1. I don't know how to omit `options` parameter of `on` method of RPCServer when `option` parameter is redundant.
 
 ## License
 
