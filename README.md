@@ -155,7 +155,7 @@ Then there is no `postMessage` for that.
 
 #### `onError`
 
-It is same as `WindowSide#onError`.
+It is same as `RPCClient#onError`.
 If you want to handle an error from `worker`, please chain `error` handler using `onError` method.
 
 ```typescript
